@@ -1,0 +1,6 @@
+.active {
+  color: #d2ab86 !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 4px !important;
+  text-underline-position: under !important;
+}
