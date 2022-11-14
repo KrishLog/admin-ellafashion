@@ -15,6 +15,10 @@ app.get('/welcome', (req, res) => {
 });
 
 app.use('/user', require('./service/user/user'));
+app.use('/product', require('./service/product/product'));
+app.use('/brand', require('./service/brand/brand'));
+app.use('/size', require('./service/size/size'));
+app.use('/item', require('./service/item/item'));
 
 app.listen(3030, function () {
   console.log('Ella fashion API');
