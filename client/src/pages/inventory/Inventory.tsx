@@ -2,10 +2,10 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { H1 } from '../../common';
+import { axiosInstance } from '../../common/axios';
 
 const columns: GridColDef[] = [
   { field: 'product', headerName: 'Product' },
@@ -74,7 +74,7 @@ export const Inventory = () => {
   const [items, setItems] = React.useState([]);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const { isLoading, error, data, isFetching } = useQuery(['inventory'], () => axios.get('http://localhost:3030/item').then((res) => res.data));
+  const { isLoading, error, data, isFetching } = useQuery(['Inventory'], () => axiosInstance.get('http://localhost:3030/item').then((res) => res.data));
 
   useEffect(() => {
     if (!isLoading) {
@@ -118,44 +118,6 @@ export const Inventory = () => {
               <div style={{ height: 400, width: '100%' }}>
                 <DataGrid getRowId={(row) => row.sku} rows={items} columns={columns} pageSize={5} rowsPerPageOptions={[10]} checkboxSelection disableSelectionOnClick />
               </div>
-              {/* <TableContainer>
-                <Table stickyHeader aria-headerName="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {columns.map((column) => (
-                        <TableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
-                          {column.headerName}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      return (
-                        <TableRow hover role="checkbox" tabIndex={-1}>
-                          {columns.map((column) => {
-                            const value = row[column.id];
-                            return (
-                              <TableCell key={column.id} align={column.align}>
-                                {column.format && typeof value === 'number' ? column.format(value) : value}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
-                component="div"
-                count={items.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              /> */}
             </Paper>
           </div>
         </div>

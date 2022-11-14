@@ -14,11 +14,13 @@ app.get('/welcome', (req, res) => {
   res.json({ message: 'Hello from Ella Fashion!' });
 });
 
-app.use('/user', require('./service/user/user'));
-app.use('/product', require('./service/product/product'));
-app.use('/brand', require('./service/brand/brand'));
-app.use('/size', require('./service/size/size'));
-app.use('/item', require('./service/item/item'));
+app.use('/user', require('./guard/auth-guard'), require('./service/user/user'));
+
+app.use('/auth', require('./service/auth/auth'));
+app.use('/product', require('./guard/auth-guard'), require('./service/product/product'));
+app.use('/brand', require('./guard/auth-guard'), require('./service/brand/brand'));
+app.use('/size', require('./guard/auth-guard'), require('./service/size/size'));
+app.use('/item', require('./guard/auth-guard'), require('./service/item/item'));
 
 app.listen(3030, function () {
   console.log('Ella fashion API');

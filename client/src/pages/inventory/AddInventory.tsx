@@ -1,48 +1,126 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import { H1 } from '../../common';
-import Button from '@mui/material/Button';
-import { NavLink, useNavigate } from 'react-router-dom';
-import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import InputLabel from '@mui/material/InputLabel';
+import { TextField } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
-import FormHelperText from '@mui/material/FormHelperText';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import * as React from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { H1 } from '../../common';
+import { axiosInstance } from '../../common/axios';
+import { queryClient } from '../../common/queryClient';
+
+const defaultValues = {
+  productId: '',
+  brandId: '',
+  sizeId: '',
+  sku: '',
+  mrp: '',
+  discount: '',
+  maxDiscount: '',
+  price: '',
+  quantity: '',
+  sold: '',
+  available: '',
+  defective: '',
+};
+
+const createItem = async (data: any) => {
+  const { data: response } = await axiosInstance.post('http://localhost:3030/item/add', data);
+  return response.data;
+};
 
 export const AddInventory = () => {
   const navigate = useNavigate();
-  const [age, setAge] = React.useState('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues,
+    mode: 'onChange',
+  });
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value);
-  };
-  const [value, setValue] = React.useState('female');
+  const [product, setProduct] = React.useState<any>([]);
+  const [brand, setBrand] = React.useState<any>([]);
+  const [size, setSize] = React.useState<any>([]);
 
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue((event.target as HTMLInputElement).value);
+  const { isLoading: productIsLoading, data: productData } = useQuery(['Product'], () => axiosInstance.get('http://localhost:3030/product').then((res) => res.data));
+  const { isLoading: brandIsLoading, data: brandData } = useQuery(['Brand'], () => axiosInstance.get('http://localhost:3030/brand').then((res) => res.data));
+  const { isLoading: sizeIsLoading, data: sizeData } = useQuery(['Size'], () => axiosInstance.get('http://localhost:3030/size').then((res) => res.data));
+
+  useEffect(() => {
+    if (!productIsLoading) {
+      const items = productData.data.map((d: any) => ({
+        id: d.ID,
+        name: d.TITLE,
+      }));
+      setProduct(items);
+    }
+  }, [productData, productIsLoading]);
+
+  useEffect(() => {
+    if (!brandIsLoading) {
+      const items = brandData.data.map((d: any) => ({
+        id: d.ID,
+        name: d.TITLE,
+      }));
+      setBrand(items);
+    }
+  }, [brandData, brandIsLoading]);
+
+  useEffect(() => {
+    if (!sizeIsLoading) {
+      const items = sizeData.data.map((d: any) => ({
+        id: d.ID,
+        name: d.TITLE,
+      }));
+      setSize(items);
+    }
+  }, [sizeData, sizeIsLoading]);
+
+  const { mutate, isLoading } = useMutation(createItem, {
+    onSuccess: (data) => {
+      console.log(data);
+      const message = 'success';
+      alert(message);
+    },
+    onError: () => {
+      alert('there was an error');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['Inventory']);
+      reset();
+    },
+  });
+
+  const onSubmit = (data: any) => {
+    alert(JSON.stringify(data, null, 4));
+    const item = {
+      ...data,
+      createdBy: 1,
+    };
+    mutate({ item });
   };
+
   return (
     <>
       <header className="bg-white shadow">
         <div className="flex items-center justify-between mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-start ">
-            <IconButton
-              aria-label="back"
-              onClick={() => navigate('/inventory')}
-            >
+            <IconButton aria-label="back" onClick={() => navigate('/inventory')}>
               <ArrowBackIcon fontSize="large" />
             </IconButton>
             <H1 className="text-3xl font-bold tracking-tight">Add Inventory</H1>
           </div>
           <div>
-            <Button variant="contained">Save</Button>
+            <Button onClick={handleSubmit(onSubmit)} variant="contained">
+              Save
+            </Button>
           </div>
         </div>
       </header>
@@ -52,73 +130,169 @@ export const AddInventory = () => {
             <Box
               component="form"
               sx={{
-                '& .MuiTextField-root': { m: 1, width: '40ch' },
+                '& .MuiTextField-root': { m: 1, width: '25ch' },
               }}
               noValidate
               autoComplete="off"
             >
-              <div>
-                <TextField
-                  required
-                  id="outlined-required"
-                  label="Required"
-                  defaultValue="Hello World"
-                />
-
-                <TextField
-                  id="outlined-number"
-                  label="Number"
-                  type="number"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </div>
-              <div>
-                <FormControl required sx={{ m: 1, minWidth: '40ch' }}>
-                  <InputLabel id="demo-simple-select-required-label">
-                    Age
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-required-label"
-                    id="demo-simple-select-required"
-                    value={age}
-                    label="Age *"
-                    onChange={handleChange}
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div>
+                  <TextField
+                    select
+                    fullWidth
+                    required
+                    label="Product"
+                    inputProps={register('productId', {
+                      required: 'Select enter product',
+                    })}
+                    error={Boolean(errors?.productId)}
+                    helperText={errors.productId?.message}
                   >
-                    <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={10}>Ten</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                    <MenuItem value={30}>Thirty</MenuItem>
-                  </Select>
-                  <FormHelperText>Required</FormHelperText>
-                </FormControl>
-                <FormControl required sx={{ m: 1, minWidth: '40ch' }}>
-                  <FormLabel id="demo-controlled-radio-buttons-group">
-                    Gender
-                  </FormLabel>
-                  <RadioGroup
-                    row
-                    aria-labelledby="demo-controlled-radio-buttons-group"
-                    name="controlled-radio-buttons-group"
-                    value={value}
-                    onChange={handleRadioChange}
+                    {product.map((option: any) => (
+                      <MenuItem key={option.id} value={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    select
+                    fullWidth
+                    required
+                    label="Brand"
+                    inputProps={register('brandId', {
+                      required: 'Select enter brand',
+                    })}
+                    error={Boolean(errors?.brandId)}
+                    helperText={errors.brandId?.message}
                   >
-                    <FormControlLabel
-                      value="female"
-                      control={<Radio />}
-                      label="Female"
-                    />
-                    <FormControlLabel
-                      value="male"
-                      control={<Radio />}
-                      label="Male"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </div>
+                    {brand.map((option: any) => (
+                      <MenuItem key={option.id} value={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    select
+                    fullWidth
+                    required
+                    label="Size"
+                    inputProps={register('sizeId', {
+                      required: 'Select enter size',
+                    })}
+                    error={Boolean(errors?.sizeId)}
+                    helperText={errors.sizeId?.message}
+                  >
+                    {size.map((option: any) => (
+                      <MenuItem key={option.id} value={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    fullWidth
+                    required
+                    label="SKU"
+                    inputProps={register('sku', {
+                      required: 'Enter enter SKU',
+                    })}
+                    error={Boolean(errors?.sku)}
+                    helperText={errors.sku?.message}
+                  />
+                </div>
+                <div></div>
+                <div>
+                  <TextField
+                    required
+                    fullWidth
+                    type="number"
+                    label="MRP"
+                    inputProps={register('mrp', {
+                      required: 'Enter enter MRP',
+                    })}
+                    error={Boolean(errors?.mrp)}
+                    helperText={errors.mrp?.message}
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    type="number"
+                    label="Discount"
+                    inputProps={register('discount', {
+                      required: 'Enter enter Discount',
+                    })}
+                    error={Boolean(errors?.discount)}
+                    helperText={errors.discount?.message}
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    type="number"
+                    label="Max Discount"
+                    inputProps={register('maxDiscount', {
+                      required: 'Enter enter max Discount',
+                    })}
+                    error={Boolean(errors?.maxDiscount)}
+                    helperText={errors.maxDiscount?.message}
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    type="number"
+                    label="Price"
+                    inputProps={register('price', {
+                      required: 'Enter enter Price',
+                    })}
+                    error={Boolean(errors?.price)}
+                    helperText={errors.price?.message}
+                  />
+                </div>
+                <div>
+                  <TextField
+                    required
+                    fullWidth
+                    type="number"
+                    label="Quantity"
+                    inputProps={register('quantity', {
+                      required: 'Enter enter Quantity',
+                    })}
+                    error={Boolean(errors?.quantity)}
+                    helperText={errors.quantity?.message}
+                  />
+                  <TextField
+                    required
+                    type="number"
+                    fullWidth
+                    label="Sold"
+                    inputProps={register('sold', {
+                      required: 'Enter enter Sold',
+                    })}
+                    error={Boolean(errors?.sold)}
+                    helperText={errors.sold?.message}
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    type="number"
+                    label="Available"
+                    inputProps={register('available', {
+                      required: 'Enter enter Available',
+                    })}
+                    error={Boolean(errors?.available)}
+                    helperText={errors.available?.message}
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    type="number"
+                    label="Defective"
+                    inputProps={register('defective', {
+                      required: 'Enter enter Defective',
+                    })}
+                    error={Boolean(errors?.defective)}
+                    helperText={errors.defective?.message}
+                  />
+                </div>
+              </form>
             </Box>
           </div>
         </div>

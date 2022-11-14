@@ -1,9 +1,9 @@
 import Button from '@mui/material/Button/Button';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { BrowserRouter as Router } from 'react-router-dom';
-const queryClient = new QueryClient();
+import { queryClient } from '../common/queryClient';
 const ErrorFallback = () => {
   return (
     <div className="text-red-500 w-screen h-screen flex flex-col justify-center items-center" role="alert">

@@ -2,13 +2,7 @@ import { Container } from '@mui/material';
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { Header } from './../common';
-import {
-  Inventory,
-  Dashboard,
-  Customer,
-  Billing,
-  AddInventory,
-} from './../pages';
+import { AddInventory, Billing, Customer, Dashboard, Inventory, Login } from './../pages';
 
 export const App = () => {
   return (
@@ -26,6 +20,7 @@ export const protectedRoutes = [
     path: '/',
     element: <App />,
     children: [
+      { path: '/login', element: <Login /> },
       { path: '/customer', element: <Customer /> },
       { path: '/billing', element: <Billing /> },
       {

@@ -4,21 +4,23 @@ const table = 'ejsoundstudios.ELLA_ITEM';
 
 function add(req, res) {
   const itemDetails = req.body.item;
+
   const item = {
     PRODUCTID: itemDetails.productId,
     BRANDID: itemDetails.brandId,
     SIZEID: itemDetails.sizeId,
     SKU: itemDetails.sku,
-    MRP: itemDetails.mrp,
-    DISCOUNT: itemDetails.discount,
-    MAXDISCOUNT: itemDetails.maxDiscount,
-    PRICE: itemDetails.price,
-    QUANTITY: itemDetails.quantity,
-    SOLD: itemDetails.sold,
-    AVAILABLE: itemDetails.available,
-    DEFECTIVE: itemDetails.defective,
+    MRP: parseFloat(itemDetails.mrp),
+    DISCOUNT: parseFloat(itemDetails.discount),
+    MAXDISCOUNT: parseFloat(itemDetails.maxDiscount),
+    PRICE: parseFloat(itemDetails.price),
+    QUANTITY: parseInt(itemDetails.quantity),
+    SOLD: parseInt(itemDetails.sold),
+    AVAILABLE: parseInt(itemDetails.available),
+    DEFECTIVE: parseInt(itemDetails.defective),
     CREATEDBY: itemDetails.createdBy,
   };
+
   sql.query(`INSERT INTO ${table} SET ?`, item, function (err) {
     if (err) {
       res.json({ error: 'Something went worng, try again.' });
@@ -123,5 +125,6 @@ function getItemById(req, res) {
   }
 }
 router.get('/', getItem);
+router.post('/add', add);
 
 module.exports = router;

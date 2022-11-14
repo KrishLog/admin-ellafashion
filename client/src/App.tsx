@@ -1,7 +1,7 @@
 import React from 'react';
-import { AppRoutes } from './router';
-import { AppProvider } from './providers/app';
 import './App.css';
+import { AppProvider } from './providers/app';
+import { AppRoutes } from './router';
 function App() {
   return (
     <AppProvider>
