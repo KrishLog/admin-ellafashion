@@ -1,108 +1,112 @@
-import React from 'react';
-import { H1 } from '../../common';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-interface Column {
-  id: 'name' | 'code' | 'population' | 'size' | 'density';
-  label: string;
-  minWidth?: number;
-  align?: 'right';
-  format?: (value: number) => string;
-}
+import { H1 } from '../../common';
 
-const columns: readonly Column[] = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'code', label: 'ISO\u00a0Code', minWidth: 100 },
+const columns: GridColDef[] = [
+  { field: 'product', headerName: 'Product' },
+  { field: 'brand', headerName: 'Brand' },
   {
-    id: 'population',
-    label: 'Population',
-    minWidth: 170,
-    align: 'right',
-    format: (value: number) => value.toLocaleString('en-US'),
+    field: 'size',
+    headerName: 'Size',
   },
   {
-    id: 'size',
-    label: 'Size\u00a0(km\u00b2)',
-    minWidth: 170,
-    align: 'right',
-    format: (value: number) => value.toLocaleString('en-US'),
+    field: 'sku',
+    headerName: 'SKU',
   },
   {
-    id: 'density',
-    label: 'Density',
-    minWidth: 170,
-    align: 'right',
-    format: (value: number) => value.toFixed(2),
+    field: 'mrp',
+    headerName: 'MRP',
+  },
+  {
+    field: 'discount',
+    headerName: 'Discount',
+  },
+  {
+    field: 'maxDiscount',
+    headerName: 'Max Discount',
+  },
+  {
+    field: 'price',
+    headerName: 'Price',
+  },
+  {
+    field: 'quantity',
+    headerName: 'Quantity',
+  },
+  {
+    field: 'sold',
+    headerName: 'Sold',
+  },
+  {
+    field: 'available',
+    headerName: 'Available',
+  },
+  {
+    field: 'defective',
+    headerName: 'Defective',
+  },
+  {
+    field: 'createdBy',
+    headerName: 'Created By',
+  },
+  {
+    field: 'updatedBy',
+    headerName: 'Updated By',
+  },
+  {
+    field: 'createdDate',
+    headerName: 'Created Date',
+  },
+  {
+    field: 'upatedDate',
+    headerName: 'Updated Date',
   },
 ];
 
-interface Data {
-  name: string;
-  code: string;
-  population: number;
-  size: number;
-  density: number;
-}
-
-function createData(
-  name: string,
-  code: string,
-  population: number,
-  size: number
-): Data {
-  const density = population / size;
-  return { name, code, population, size, density };
-}
-
-const rows = [
-  createData('India', 'IN', 1324171354, 3287263),
-  createData('China', 'CN', 1403500365, 9596961),
-  createData('Italy', 'IT', 60483973, 301340),
-  createData('United States', 'US', 327167434, 9833520),
-  createData('Canada', 'CA', 37602103, 9984670),
-  createData('Australia', 'AU', 25475400, 7692024),
-  createData('Germany', 'DE', 83019200, 357578),
-  createData('Ireland', 'IE', 4857000, 70273),
-  createData('Mexico', 'MX', 126577691, 1972550),
-  createData('Japan', 'JP', 126317000, 377973),
-  createData('France', 'FR', 67022000, 640679),
-  createData('United Kingdom', 'GB', 67545757, 242495),
-  createData('Russia', 'RU', 146793744, 17098246),
-  createData('Nigeria', 'NG', 200962417, 923768),
-  createData('Brazil', 'BR', 210147125, 8515767),
-];
 export const Inventory = () => {
   const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
+  const [items, setItems] = React.useState([]);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
+  const { isLoading, error, data, isFetching } = useQuery(['inventory'], () => axios.get('http://localhost:3030/item').then((res) => res.data));
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+  useEffect(() => {
+    if (!isLoading) {
+      const items = data.data.map((d: any) => ({
+        id: d.id,
+        product: d.PRODUCT,
+        brand: d.BRAND,
+        size: d.SIZE,
+        sku: d.SKU,
+        mrp: d.MRP,
+        discount: d.DISCOUNT,
+        maxDiscount: d.MAXDISCOUNT,
+        price: d.PRICE,
+        quantity: d.QUANTITY,
+        sold: d.SOLD,
+        available: d.AVAILABLE,
+        defective: d.DEFECTIVE,
+        createdBy: d.CREATEDBY,
+        updatedBy: d.UPDATEBY,
+        createdDate: d.CREATEDDATE,
+        updateddate: d.UPDATEDDATE,
+      }));
+      setItems(items);
+    }
+  }, [data, isLoading]);
+
   return (
     <>
       <header className="bg-white shadow">
         <div className="flex justify-between mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
           <H1 className="text-3xl font-bold tracking-tight">Inventory</H1>
-          <Button
-            variant="contained"
-            onClick={() => navigate('/inventory/add')}
-          >
+          <Button variant="contained" onClick={() => navigate('/inventory/add')}>
             Add
           </Button>
         </div>
@@ -111,60 +115,47 @@ export const Inventory = () => {
         <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-              <TableContainer>
-                <Table stickyHeader aria-label="sticky table">
+              <div style={{ height: 400, width: '100%' }}>
+                <DataGrid getRowId={(row) => row.sku} rows={items} columns={columns} pageSize={5} rowsPerPageOptions={[10]} checkboxSelection disableSelectionOnClick />
+              </div>
+              {/* <TableContainer>
+                <Table stickyHeader aria-headerName="sticky table">
                   <TableHead>
                     <TableRow>
                       {columns.map((column) => (
-                        <TableCell
-                          key={column.id}
-                          align={column.align}
-                          style={{ minWidth: column.minWidth }}
-                        >
-                          {column.label}
+                        <TableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
+                          {column.headerName}
                         </TableCell>
                       ))}
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {rows
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((row) => {
-                        return (
-                          <TableRow
-                            hover
-                            role="checkbox"
-                            tabIndex={-1}
-                            key={row.code}
-                          >
-                            {columns.map((column) => {
-                              const value = row[column.id];
-                              return (
-                                <TableCell key={column.id} align={column.align}>
-                                  {column.format && typeof value === 'number'
-                                    ? column.format(value)
-                                    : value}
-                                </TableCell>
-                              );
-                            })}
-                          </TableRow>
-                        );
-                      })}
+                    {items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                      return (
+                        <TableRow hover role="checkbox" tabIndex={-1}>
+                          {columns.map((column) => {
+                            const value = row[column.id];
+                            return (
+                              <TableCell key={column.id} align={column.align}>
+                                {column.format && typeof value === 'number' ? column.format(value) : value}
+                              </TableCell>
+                            );
+                          })}
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </TableContainer>
               <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={rows.length}
+                count={items.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-              />
+              /> */}
             </Paper>
           </div>
         </div>

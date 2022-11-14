@@ -79,9 +79,12 @@ function edit(req, res) {
 
 function getItem(req, res) {
   sql.query(
-    `SELECT i.ID, p.TITLE as PRODUCT, b.TITLE  as BRAND, s.TITLE as SIZE, i.SKU, i.MRP, i.DISCOUNT, i.MAXDISCOUNT, i.PRICE, i.QUANTITY, i.SOLD, i.AVAILABLE, i.DEFECTIVE, i.CREATEDBY, i.UPDATEBY, i.CREATEDDATE, i.UPDATEDDATE
-  FROM  ${table} as i
-  LEFT JOIN ejsoundstudios.ELLA_PRODUCT as p  ON i.PRODUCTID  =p.ID LEFT JOIN ejsoundstudios.ELLA_BRAND as b  ON i.BRANDID =b.ID LEFT JOIN ejsoundstudios.ELLA_SIZE   as s  ON i.BRANDID =s.ID ;
+    `SELECT i.ID, p.TITLE as PRODUCT, b.TITLE  as BRAND, s.TITLE as SIZE, i.SKU, i.MRP, i.DISCOUNT, i.MAXDISCOUNT, i.PRICE, i.QUANTITY, i.SOLD, i.AVAILABLE, i.DEFECTIVE, u.USERNAME as CREATEDBY, u.USERNAME  as UPDATEBY, i.CREATEDDATE, i.UPDATEDDATE
+    FROM  ${table} as i
+    LEFT JOIN ejsoundstudios.ELLA_PRODUCT as p  ON i.PRODUCTID  =p.ID 
+    LEFT JOIN ejsoundstudios.ELLA_BRAND as b  ON i.BRANDID =b.ID 
+    LEFT JOIN ejsoundstudios.ELLA_SIZE   as s  ON i.BRANDID =s.ID
+    LEFT JOIN ejsoundstudios.ELLA_USER   as u  ON i.CREATEDBY = u.ID ;
   `,
     function (err, rows) {
       if (err) throw err;
