@@ -4,6 +4,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { H1 } from '../../common';
+import { BASE_URL } from '../../config/server';
 import useAuth from '../../context/auth/auth-context';
 
 export const Login = () => {
@@ -28,7 +29,7 @@ export const Login = () => {
   const onSubmit = (data: any) => {
     // login(data.userName, data.password);
 
-    axios.post('http://localhost:3030/auth/login', data).then((response) => {
+    axios.post(BASE_URL + 'auth/login', data).then((response) => {
       if (response.data.accessToken?.length > 0) {
         localStorage.setItem('token', response.data.accessToken);
         localStorage.setItem('user', JSON.stringify(response.data.user));

@@ -6,6 +6,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { H1 } from '../../common';
 import { axiosInstance } from '../../common/axios';
+import { BASE_URL } from '../../config/server';
 
 const columns: GridColDef[] = [
   { field: 'product', headerName: 'Product' },
@@ -74,7 +75,7 @@ export const Inventory = () => {
   const [items, setItems] = React.useState([]);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const { isLoading, error, data, isFetching } = useQuery(['Inventory'], () => axiosInstance.get('http://localhost:3030/item').then((res) => res.data));
+  const { isLoading, error, data, isFetching } = useQuery(['Inventory'], () => axiosInstance.get(BASE_URL + 'item').then((res) => res.data));
 
   useEffect(() => {
     if (!isLoading) {

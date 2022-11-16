@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { H1 } from '../../common';
 import { axiosInstance } from '../../common/axios';
 import { queryClient } from '../../common/queryClient';
+import { BASE_URL } from '../../config/server';
 
 const defaultValues = {
   productId: '',
@@ -29,7 +30,7 @@ const defaultValues = {
 };
 
 const createItem = async (data: any) => {
-  const { data: response } = await axiosInstance.post('http://localhost:3030/item/add', data);
+  const { data: response } = await axiosInstance.post(BASE_URL + 'item/add', data);
   return response.data;
 };
 
@@ -49,9 +50,9 @@ export const AddInventory = () => {
   const [brand, setBrand] = React.useState<any>([]);
   const [size, setSize] = React.useState<any>([]);
 
-  const { isLoading: productIsLoading, data: productData } = useQuery(['Product'], () => axiosInstance.get('http://localhost:3030/product').then((res) => res.data));
-  const { isLoading: brandIsLoading, data: brandData } = useQuery(['Brand'], () => axiosInstance.get('http://localhost:3030/brand').then((res) => res.data));
-  const { isLoading: sizeIsLoading, data: sizeData } = useQuery(['Size'], () => axiosInstance.get('http://localhost:3030/size').then((res) => res.data));
+  const { isLoading: productIsLoading, data: productData } = useQuery(['Product'], () => axiosInstance.get(BASE_URL + 'product').then((res) => res.data));
+  const { isLoading: brandIsLoading, data: brandData } = useQuery(['Brand'], () => axiosInstance.get(BASE_URL + 'brand').then((res) => res.data));
+  const { isLoading: sizeIsLoading, data: sizeData } = useQuery(['Size'], () => axiosInstance.get(BASE_URL + 'size').then((res) => res.data));
 
   useEffect(() => {
     if (!productIsLoading) {
